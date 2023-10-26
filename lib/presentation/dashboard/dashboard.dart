@@ -30,46 +30,61 @@ class _DashboardState extends State<Dashboard> {
                   margin: const EdgeInsets.only(
                     top: 20,
                   ),
-                  child: ListView.builder(
-                    itemCount: state.dashboardResponse.result?.length,
-                    itemBuilder: (context, index) {
-                      var data = state.dashboardResponse.result?[index];
-                      return RefreshIndicator(
+                  child: BlocBuilder<DashboardCubit, DashboardState>(
+                    builder: (context, state) {
+                      if(state is DashboardLoading){
+                        return Center(child: CircularProgressIndicator());
+                      }
+                      else if(state is DashboardLoaded){
+                        return ListView.builder(
+                          itemCount: state.dashboardResponse.result?.length,
+                          itemBuilder: (context, index) {
+                            var data = state.dashboardResponse.result?[index];
 
-                        onRefresh: () {
-                          return Future.delayed(
-                              const Duration(seconds: 1), () {
-                            BlocProvider.of<DashboardCubit>(context)
-                                .getDashboardData();
-                          });
-                        },
-                        child: data?.firstImage == null
-                            ? CircularProgressIndicator() // Show loader when the image is being loaded
-                            : ListTile(
-                          leading: ClipOval(
-                            child: Image.network(
-                              data?.firstImage ?? '',
-                              width: 35,
-                              height: 35,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          subtitle: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                data?.userId?.fullName ?? '',
-                                style: TextStyle(
-                                    fontFamily: Fonts.AvenirNextLTProBold,
-                                    fontSize: 20,
-                                    color: CLR.black),
+
+                            return RefreshIndicator(
+
+                              onRefresh: () {
+                                return Future.delayed(
+                                    const Duration(seconds: 1), () {
+                                  BlocProvider.of<DashboardCubit>(context)
+                                      .getDashboardData();
+                                });
+                              },
+                              child:ListTile(
+                                leading: ClipOval(
+                                  child: Image.network(
+                                    data?.firstImage ?? '',
+                                    width: 35,
+                                    height: 35,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                subtitle: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      data?.userId?.fullName ?? '',
+                                      style: TextStyle(
+                                          fontFamily: Fonts.AvenirNextLTProBold,
+                                          fontSize: 20,
+                                          color: CLR.black),
+                                    ),
+                                    Text(data?.firstLabel ?? ''),
+                                  ],
+                                ),
                               ),
-                              Text(data?.firstLabel ?? ''),
-                            ],
-                          ),
-                        ),
-                      );
+                            );
+
+
+
+                          },
+                        );
+                      } else{
+                        return Center(child: Text("No data Found"));
+                      }
+
                     },
                   ),
                 ),
